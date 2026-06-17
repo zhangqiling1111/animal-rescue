@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.DonationMapper">
+    <insert id="addDonationRecord" useGeneratedKeys="true" keyProperty="donationId">
+        INSERT INTO donationrecord(user_id, shelter_id, amount, item_type,donated_at)
+        VALUES (#{donateUserId},#{shelterId},#{amount},#{itemType},NOW())
+    </insert>
+    <select id="getDonationRecord" resultType="org.example.strayanimalrescuebackend.model.DonationRecord">
+        SELECT
+            d.donation_id AS donationId,
+            d.user_id AS donateUserId,
+            du.username AS donateUserName,
+            d.shelter_id AS shelterId,
+            s.name AS shelterName,
+            s.user_id AS shelterUserId,
+            su.username AS shelterUserName,
+            d.amount,
+            d.item_type AS itemType,
+            d.donated_at AS donatedAt,
+            s.address AS shelterAddress,
+            s.contact_info AS shelterContactInfo
+        FROM donationrecord d
+        JOIN strayanimalrescue.shelter s on d.shelter_id = s.shelter_id
+        JOIN strayanimalrescue.user du on d.user_id = du.user_id
+        JOIN strayanimalrescue.user su on s.user_id = su.user_id
+        WHERE donation_id = #{donationId}
+    </select>
+    <select id="getPersonalRecords" resultType="org.example.strayanimalrescuebackend.model.DonationRecord">
+        SELECT
+            d.donation_id AS donationId,
+            d.user_id AS donateUserId,
+            du.username AS donateUserName,
+            d.shelter_id AS shelterId,
+            s.name AS shelterName,
+            s.user_id AS shelterUserId,
+            su.username AS shelterUserName,
+            d.amount,
+            d.item_type AS itemType,
+            d.donated_at AS donatedAt,
+            s.address AS shelterAddress,
+            s.contact_info AS shelterContactInfo
+        FROM donationrecord d
+                 JOIN strayanimalrescue.shelter s on d.shelter_id = s.shelter_id
+                 JOIN strayanimalrescue.user du on d.user_id = du.user_id
+                 JOIN strayanimalrescue.user su on s.user_id = su.user_id
+        WHERE d.user_id = #{userId}
+    </select>
+    <select id="getRecordsInShelter" resultType="org.example.strayanimalrescuebackend.model.DonationRecord">
+        SELECT
+            d.donation_id AS donationId,
+            d.user_id AS donateUserId,
+            du.username AS donateUserName,
+            d.shelter_id AS shelterId,
+            s.name AS shelterName,
+            s.user_id AS shelterUserId,
+            su.username AS shelterUserName,
+            d.amount,
+            d.item_type AS itemType,
+            d.donated_at AS donatedAt,
+            s.address AS shelterAddress,
+            s.contact_info AS shelterContactInfo
+        FROM donationrecord d
+                 JOIN strayanimalrescue.shelter s on d.shelter_id = s.shelter_id
+                 JOIN strayanimalrescue.user du on d.user_id = du.user_id
+                 JOIN strayanimalrescue.user su on s.user_id = su.user_id
+        WHERE d.shelter_id = #{shelterId}
+    </select>
+</mapper>

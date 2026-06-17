@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.ShelterApplicationMapper">
+
+    <!-- 查询所有救助站申请 -->
+    <select id="getAllApplications" resultType="org.example.strayanimalrescuebackend.model.ShelterApplication">
+        SELECT
+            application_id,
+            user_id,
+            shelter_name,
+            address,
+            contact_info,
+            status,
+            applied_at
+        FROM shelterapplication
+    </select>
+
+    <!-- 根据ID查询单个申请 -->
+    <select id="getApplicationById" resultType="org.example.strayanimalrescuebackend.model.ShelterApplication">
+        SELECT
+            application_id,
+            user_id,
+            shelter_name,
+            address,
+            contact_info,
+            status,
+            applied_at
+        FROM shelterapplication
+        WHERE application_id = #{applicationId}
+    </select>
+
+    <!-- 更新申请状态 -->
+    <update id="updateApplicationStatus">
+        UPDATE shelterapplication
+        SET status = #{status}
+        WHERE application_id = #{applicationId}
+    </update>
+
+    <!-- 插入新的救助站申请 -->
+    <insert id="insertShelterApplication" useGeneratedKeys="true" keyProperty="applicationId">
+        INSERT INTO shelterapplication (user_id, shelter_name, address, contact_info, status, applied_at)
+        VALUES (#{userId}, #{shelterName}, #{address}, #{contactInfo}, '待审核', NOW())
+    </insert>
+
+    <!-- 删除救助站申请 -->
+    <delete id="deleteApplication">
+        DELETE FROM shelterapplication WHERE application_id = #{applicationId}
+    </delete>
+</mapper>
