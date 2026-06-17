@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.ShelterMapper">
+
+    <!-- 查询所有救助站信息 -->
+    <select id="findAllShelters" resultType="org.example.strayanimalrescuebackend.model.Shelter">
+        SELECT shelter_id, user_id, name, address, contact_info FROM shelter
+    </select>
+
+    <!-- 根据 ID 查询救助站信息 -->
+    <select id="findShelterById" parameterType="int" resultType="org.example.strayanimalrescuebackend.model.Shelter">
+        SELECT shelter_id, user_id, name, address, contact_info
+        FROM shelter
+        WHERE shelter_id = #{shelterId}
+    </select>
+
+    <!-- 检查用户是否已有待审核的申请 -->
+    <select id="checkApplicationExists" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM shelterapplication WHERE user_id = #{userId} AND status = '待审核'
+    </select>
+
+
+
+    <!-- 根据用户 ID 查找救助站申请记录 -->
+    <select id="findShelterApplicationByUserId" parameterType="int" resultType="org.example.strayanimalrescuebackend.model.ShelterApplication">
+        SELECT application_id, user_id, shelter_name, address, contact_info, status, applied_at
+        FROM shelterapplication
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据救助站名称和地址搜索救助站 -->
+    <select id="searchShelters" resultType="org.example.strayanimalrescuebackend.model.Shelter">
+        SELECT shelter_id, user_id, name, address, contact_info
+        FROM shelter
+        WHERE
+            (#{shelterName} IS NULL OR name LIKE CONCAT('%', #{shelterName}, '%'))
+          AND (#{address} IS NULL OR address LIKE CONCAT('%', #{address}, '%'))
+    </select>
+
+    <!-- 根据用户ID查询救助站信息 -->
+    <select id="findShelterByUserId" resultType="org.example.strayanimalrescuebackend.model.Shelter">
+        SELECT * FROM shelter WHERE user_id = #{userId}
+    </select>
+
+    <!-- 更新救助站信息 -->
+    <update id="updateShelter" parameterType="org.example.strayanimalrescuebackend.model.Shelter">
+        UPDATE shelter
+        SET name = #{name}, <!-- 使用 Java 类中的 name 字段 -->
+        address = #{address},
+        contact_info = #{contactInfo} <!-- 使用 Java 类中的 contactInfo 字段 -->
+        WHERE shelter_id = #{shelterId}
+    </update>
+
+    <!-- 插入新的救助站记录 -->
+    <insert id="insertShelter" parameterType="org.example.strayanimalrescuebackend.model.Shelter">
+        INSERT INTO shelter (user_id, name, address, contact_info)
+        VALUES (#{userId}, #{name}, #{address}, #{contactInfo});
+    </insert>
+</mapper>

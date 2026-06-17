@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.RescueMapper">
+    <insert id="addRescueReport" useGeneratedKeys="true" keyProperty="reportId">
+        INSERT INTO rescuereport(user_id, shelter_id, location, photos, health_status)
+        VALUES (#{userId},#{shelterId},#{location},#{photos},#{healthStatus})
+    </insert>
+    <insert id="insertRescueRecord" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO rescuerecord(shelter_id,animal_id,rescue_time,details)
+        VALUES (#{shelterId},#{animalId},NOW(),#{details})
+    </insert>
+    <update id="checkReport">
+        UPDATE rescuereport
+        SET status = #{status}
+        WHERE report_id = #{reportId} AND shelter_id = #{shelterId}
+
+    </update>
+
+
+    <select id="getRescueRecords" resultType="org.example.strayanimalrescuebackend.model.RescueRecord">
+        SELECT
+            record_id AS recordId,
+            shelter_id AS shelterId,
+            animal_id AS animalId,
+            rescue_time AS rescueTime,
+            details
+        FROM rescuerecord
+        <where>
+            <if test="recordId != -1">
+                record_id = #{recordId}
+            </if>
+            <if test="shelterId != -1">
+                AND shelter_id = #{shelterId}
+            </if>
+            <if test="animalId != -1">
+                AND animal_id = #{animalId}
+            </if>
+        </where>
+    </select>
+    <select id="getRescueReport" resultType="org.example.strayanimalrescuebackend.model.RescueReport">
+        SELECT
+            report_id As reportId,
+            user_id AS userId,
+            shelter_id AS shelterId,
+            location,
+            photos,
+            health_status AS healthStatus,
+            status,
+            reported_at AS reportedAt
+        FROM rescuereport
+        WHERE report_id = #{reportId}
+    </select>
+    <select id="getReportByUserId" resultType="org.example.strayanimalrescuebackend.model.RescueReport">
+        SELECT
+            report_id As reportId,
+            user_id AS userId,
+            shelter_id AS shelterId,
+            location,
+            photos,
+            health_status AS healthStatus,
+            status,
+            reported_at AS reportedAt
+        FROM rescuereport
+        WHERE user_id = #{userId}
+    </select>
+    <select id="getReportByShelterId" resultType="org.example.strayanimalrescuebackend.model.RescueReport">
+        SELECT
+            report_id As reportId,
+            user_id AS userId,
+            shelter_id AS shelterId,
+            location,
+            photos,
+            health_status AS healthStatus,
+            status,
+            reported_at AS reportedAt
+        FROM rescuereport
+        WHERE shelter_id = #{shelterId}
+    </select>
+    <select id="getRescueRecordById" resultType="org.example.strayanimalrescuebackend.model.RescueRecord">
+        SELECT
+            record_id AS recordId,
+            shelter_id AS shelterId,
+            animal_id AS animalId,
+            rescue_time AS rescueTime,
+            details
+        FROM rescuerecord
+        WHERE record_id = #{recordId}
+    </select>
+</mapper>

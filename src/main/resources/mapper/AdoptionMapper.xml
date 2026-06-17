@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.AdoptionMapper">
+
+    <!-- 插入领养申请 -->
+    <insert id="insertAdoptionApplication">
+        INSERT INTO adoptionapplication (user_id, animal_id, status, applied_at, notes)
+        VALUES (#{userId}, #{animalId}, '审核中', NOW(),#{notes});
+    </insert>
+
+    <!-- 查询该动物是否已被领养 -->
+    <select id="existsAdoptedAnimal" resultType="int">
+        SELECT COUNT(*) FROM adoptionapplication
+        WHERE animal_id = #{animalId} AND status = '审核中'
+    </select>
+
+    <!-- 查询当前用户是否已提交过该动物的领养申请 -->
+    <select id="existsUserApplication" resultType="int">
+        SELECT COUNT(*) FROM adoptionapplication
+        WHERE user_id = #{userId} AND animal_id = #{animalId}
+    </select>
+
+    <select id="findApplicationById" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT * FROM adoptionapplication WHERE application_id = #{applicationId}
+    </select>
+
+    <delete id="deleteAdoptionApplicationById">
+        DELETE FROM adoptionapplication WHERE application_id = #{applicationId}
+    </delete>
+
+    <!-- 查询用户的领养申请 -->
+    <select id="findApplicationByUserAndAnimal" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT * FROM adoptionapplication WHERE user_id = #{userId} AND animal_id = #{animalId}
+    </select>
+
+    <!-- 查询用户的所有领养申请 -->
+    <select id="getAdoptionDetailsByUser" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT * FROM adoptionapplication WHERE user_id = #{userId}
+    </select>
+
+    <!-- 根据申请 ID 查询领养申请信息 -->
+    <select id="findAdoptionApplicationByApplicationId" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT *
+        FROM adoptionapplication
+        WHERE application_Id = #{applicationId}
+    </select>
+
+<!-- 根据 shelterId 获取所有领养申请-->
+    <select id="getAdoptionApplicationsByShelterId" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT aa.*
+        FROM adoptionapplication aa
+                 JOIN animal a ON aa.animal_id = a.animal_id
+        WHERE a.shelter_id = #{shelterId}
+        ORDER BY aa.applied_at DESC
+            LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 先更新备注 -->
+    <update id="updateApplicationNotes">
+        UPDATE adoptionapplication
+        SET notes = #{notes}
+        WHERE application_id = #{applicationId}
+    </update>
+
+    <!-- 再更新审核状态 -->
+    <update id="updateApplicationStatus">
+        UPDATE adoptionapplication
+        SET status = #{status}
+        WHERE application_id = #{applicationId}
+    </update>
+
+    <select id="findApplicationsByUserIdAndBreed" resultType="org.example.strayanimalrescuebackend.model.AdoptionApplication">
+        SELECT aa.*
+        FROM adoptionapplication aa
+                 JOIN animal a ON aa.animal_id = a.animal_id
+        WHERE aa.user_id = #{userId} AND a.breed LIKE CONCAT('%', #{breed}, '%')
+    </select>
+
+
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.strayanimalrescuebackend.mapper.AnimalMapper">
+    <insert id="addAnimal" parameterType="org.example.strayanimalrescuebackend.model.Animal" useGeneratedKeys="true" keyProperty="animalId">
+        INSERT INTO animal (shelter_id, breed, age, health_status, is_adoptable, animal_photo)
+        VALUES (#{shelterId},#{breed},#{age},#{healthStatus},#{isAdoptable},#{animalPhoto})
+
+    </insert>
+    <update id="updateAnimalInfo">
+        UPDATE animal
+        <set>
+            <if test="breed != null">
+                breed = #{breed},
+            </if>
+            <if test="age >= 0">
+                age = #{age},
+            </if>
+            <if test="healthStatus != null">
+                health_status = #{healthStatus},
+            </if>
+            <if test="isAdoptable == 0 or isAdoptable == 1">
+                is_adoptable = #{isAdoptable},
+            </if>
+            <if test="animalPhoto != null">
+                animal_photo = #{animalPhoto}
+            </if>
+        </set>
+        WHERE animal_id = #{animalId}
+    </update>
+
+
+    <update id="deleteAnimal">
+        UPDATE animal
+        SET is_adoptable = -1
+        WHERE animal_id = #{animalId}
+    </update>
+    <update id="uploadAnimalPhoto">
+        UPDATE strayanimalrescue.animal
+        SET strayanimalrescue.animal.animal_photo = #{photoUrl}
+        WHERE strayanimalrescue.animal.animal_id = #{animalId}
+    </update>
+
+
+    <select id="getAnimals" resultType="org.example.strayanimalrescuebackend.model.Animal">
+        SELECT
+            a.animal_id as animalId,
+            a.shelter_id as shelterId,
+            s.name as shelterName,
+            s.address as address,
+            a.breed as breed,
+            a.age as age,
+            a.health_status as healthStatus,
+            a.is_adoptable as isAdoptable,
+            a.created_at as createdAt,
+            a.animal_photo as animalPhoto
+        FROM animal a
+            LEFT JOIN strayanimalrescue.shelter s ON s.shelter_id = a.shelter_id
+        WHERE is_adoptable != -1
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="searchAnimals" resultType="org.example.strayanimalrescuebackend.model.Animal">
+        SELECT
+        a.animal_id as animalId,
+        a.shelter_id as shelterId,
+        s.name as shelterName,
+        s.address as address,
+        a.breed as breed,
+        a.age as age,
+        a.health_status as healthStatus,
+        a.is_adoptable as isAdoptable,
+        a.created_at as createdAt,
+        a.animal_photo as animalPhoto
+        FROM animal a
+        LEFT JOIN strayanimalrescue.shelter s ON s.shelter_id = a.shelter_id
+        <where>
+            a.is_adoptable != -1  <!-- 基础过滤条件 -->
+            <if test="breed != null and breed != ''">
+                AND a.breed LIKE CONCAT('%', #{breed}, '%')
+            </if>
+            <if test="area != null and area != ''">
+                AND s.address LIKE CONCAT('%', #{area}, '%')
+            </if>
+            <if test="healthStatus != null and healthStatus != ''">
+                AND a.health_status LIKE CONCAT('%', #{healthStatus}, '%')
+            </if>
+            <if test="isAdoptable != null and (isAdoptable == 0 or isAdoptable == 1)">
+                AND a.is_adoptable = #{isAdoptable}
+            </if>
+            <if test="shelterName != null and shelterName != ''">
+                AND s.name LIKE CONCAT('%', #{shelterName}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="getAnimalInfo" resultType="org.example.strayanimalrescuebackend.model.Animal">
+        SELECT
+            a.animal_id as animalId,
+            a.shelter_id as shelterId,
+            s.name as shelterName,
+            s.address as address,
+            a.breed as breed,
+            a.age as age,
+            a.health_status as healthStatus,
+            a.is_adoptable as isAdoptable,
+            a.created_at as createdAt,
+            a.animal_photo as animalPhoto
+        from animal a
+        LEFT JOIN strayanimalrescue.shelter s on s.shelter_id = a.shelter_id
+        WHERE a.animal_id = #{animalId} AND a.is_adoptable != -1
+    </select>
+    <select id="getAnimalsInShelter" resultType="org.example.strayanimalrescuebackend.model.Animal">
+        SELECT
+            a.animal_id as animalId,
+            a.shelter_id as shelterId,
+            s.name as shelterName,
+            s.address as address,
+            a.breed as breed,
+            a.age as age,
+            a.health_status as healthStatus,
+            a.is_adoptable as isAdoptable,
+            a.created_at as createdAt,
+            a.animal_photo as animalPhoto
+        from animal a
+                 LEFT JOIN strayanimalrescue.shelter s on s.shelter_id = a.shelter_id
+        WHERE a.shelter_id = #{shelterId} AND a.is_adoptable != -1
+    </select>
+    <select id="hasShelter" resultType="java.lang.Boolean">
+        SELECT count(*)
+        FROM shelter
+        WHERE shelter_id = #{shelterId} AND user_id = #{userId}
+    </select>
+    <select id="getAnimalTotalNum" resultType="java.lang.Integer">
+        SELECT COUNT(*) AS animalTotalNum
+        FROM strayanimalrescue.animal
+        WHERE is_adoptable != -1
+    </select>
+
+
+</mapper>
